@@ -1,22 +1,25 @@
-// Initialize butotn with users's prefered color
+// Initialize button with user's preferred color
 let pauseVid = document.getElementById("pauseVid");
 let playVid = document.getElementById("playVid");
 let videoElement = null;
 
+const {executeScript} = chrome.scripting;
+
 
 // When the button is clicked, inject setPageBackgroundColor into current page
-pauseVid.addEventListener("click", async () => {    
+pauseVid.addEventListener("click", async () => {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-    chrome.scripting.executeScript({
-        target: { tabId: tab.id },
+    // noinspection JSCheckFunctionSignatures
+    executeScript({
+        target: {tabId: tab.id},
         function: pauseThisVideo,
     });
         
     
 });
 
-// The body of this function will be execuetd as a content script inside the    
+// The body of this function will be execute as a content script inside the
 // current page
 const pauseThisVideo = () => {
     document.body.getElementsByTagName("video")[0].pause();
@@ -36,9 +39,10 @@ playVid.addEventListener("click", async () => {
         
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     //videoElement = document.body.getElementsByTagName("video")[0];
-    
-    chrome.scripting.executeScript({
-        target: { tabId: tab.id },
+
+    // noinspection JSCheckFunctionSignatures
+    executeScript({
+        target: {tabId: tab.id},
         function: playThisVideo,
     });
 
@@ -46,9 +50,8 @@ playVid.addEventListener("click", async () => {
 
 
 
-// The body of this function will be execuetd as a content script inside the
+// The body of this function will be execute as a content script inside the
 // current page
 const playThisVideo = () => {
-    document.body.getElementsByTagName("video")[0].play();
-    
+    document.body.getElementsByTagName("video")[0].play().then(() => {});
 } 
