@@ -1,0 +1,18 @@
+{
+    "name": "Video Sync Controller",
+    "description": "Pauses and plays videos!",
+    "version": "1.0",
+    "manifest_version": 3,
+    "background": {
+      "service_worker": "background.js"
+    },
+
+    "action": {
+      "default_popup": "pause.html"
+    },  
+    "permissions": ["storage", "activeTab", "scripting"],
+    "host_permissions": ["http://162.248.100.184:8000/client.txt"]
+    
+
+}
+  
