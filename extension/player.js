@@ -1,6 +1,7 @@
 let logged_in_user;
 let socket;
-let data;
+let connected = false;
+let data = {time: 0, pause: false};
 
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('fileinput')
@@ -21,12 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.binaryType = "arraybuffer"
 
         socket.onopen = function() {
-            connected = true;
             socket.send("Connected")
+            connected = true
         };
 
         socket.onclose = function() {
-            connected = false;
+            connected = false
         }
 
         socket.onmessage = (event) => {
@@ -78,14 +79,16 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 
     player.addEventListener("pause", () => {
-        if (isHost()) {
-            chrome.runtime.sendMessage({text: "pause", time: player.currentTime}, () => {})
+        if (isHost() && connected) {
+            console.log("Sending Pause")
+            socket.send(`p,${player.currentTime}|1`);
         }
     })
 
     player.addEventListener("play", () => {
-        if (isHost()) {
-            chrome.runtime.sendMessage({text: "play", time: player.currentTime}, () => {})
+        if (isHost() && connected) {
+            console.log("Sending Play")
+            socket.send(`p,${player.currentTime}|0`);
         }
     })
 
