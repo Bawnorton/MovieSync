@@ -15,8 +15,6 @@ pauseVid.addEventListener("click", async () => {
         target: {tabId: tab.id},
         function: pauseThisVideo,
     });
-        
-    
 });
 
 // The body of this function will be execute as a content script inside the
@@ -29,7 +27,6 @@ const pauseThisVideo = () => {
         console.log(text);
     });
   });
-    
 } 
 
 
@@ -45,7 +42,6 @@ playVid.addEventListener("click", async () => {
         target: {tabId: tab.id},
         function: playThisVideo,
     });
-
 });
 
 

@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <link rel="stylesheet" href="button.css">
+    <link rel="stylesheet" href="main.css">
+    <title>Video Sync Controller</title>
   </head>
   <body>
     <div id="main">
       <p id="title">Video Sync Controller</p>
+      <hr>
       <div class="row">
-        <button class="PPbutton" id="playVid">
-          Play Video
-        </button>
-        <button style="margin-right: 0;" class="PPbutton" id="pauseVid">
-          Pause Video
-        </button>
+        <p>
+          <label for="fileinput">Video Directory: </label>
+          <input class="InputField" type="text" id="fileinput"/>
+        </p>
         <script src="pause.js"></script>
       </div>
     </div>
