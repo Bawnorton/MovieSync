@@ -75,6 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
             player.src = URL.createObjectURL(file)
 
             fileInputButton.style.display = "none"
+            ipField.style.display = "none"
+            portField.style.display = "none"
+            connectButton.style.display = "none"
+
             player.style.objectFit = "cover"
             player.style.display = "block"
             if (isHost()) {
