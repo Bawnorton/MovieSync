@@ -2,14 +2,19 @@
 import asyncio
 import websockets
 
-first_user: bool = False
 timestamp: int = 0
 pause: bool = False
 clients = set()
 
 
 async def end(websocket=None):
+    global timestamp, pause
     print(f"Host {websocket.remote_address} Issued Exit Command")
+    timestamp = 0
+    pause = False
+    with open("client.txt", "w") as client_file:
+        client_file.write(f"0,0")
+        await websocket.send("uw")
     for client in clients:
         if client == websocket:
             continue

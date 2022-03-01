@@ -1,4 +1,4 @@
-chrome.runtime.onInstalled.addListener(() => {
+chrome.action.onClicked.addListener(() => {
     let socket;
     let connected = false;
     const host = "162.248.100.184:2023"
@@ -47,16 +47,3 @@ chrome.runtime.onInstalled.addListener(() => {
         });
     });
 });
-
-
-// chrome.runtime.getPackageDirectoryEntry(function(root) {
-//   root.getFile("client.txt", {}, function(fileEntry) {
-//     fileEntry.file(function(file) {
-//       var reader = new FileReader();
-//       reader.onloadend = function(e) {
-        
-//       };
-//       reader.readAsText(file);
-//     }, errorHandler);
-//   }, errorHandler); 
-// });

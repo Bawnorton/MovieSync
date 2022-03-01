@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="main.css" type="text/css">
+  <title>Video Player</title>
+  <script src="player.js"></script>
+</head>
+<body id="playermain">
+  <div class="pad">
+    <div class="center">
+      <form>
+        <input class="block" type="button" id="fileinputbutton" value="Video File" style=""/>
+        <input style="display:none;" type="file" id="fileinput" accept="video/*"/>
+      </form>
+    </div>
+  </div>
+  <video controls autoplay id="videoplayer" style="display: none;"></video>
+</body>
+</html>
