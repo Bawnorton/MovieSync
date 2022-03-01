@@ -11,6 +11,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     chrome.runtime.sendMessage({text: "getemail"}, (response) => {
         logged_in_user = response.email;
+
+        if(!isHost()) {
+            setInterval(() => {
+                chrome.runtime.sendMessage({text: "getdata"}, (response) => {
+                    if(response.pause) {
+                        player.pause();
+                        player.currentTime = parseFloat(response.time);
+                    } else if (player.paused) {
+                        player.play();
+                        player.currentTime = parseFloat(response.time);
+                    }
+
+                })
+            }, 100)
+        }
     })
 
     const fileInput = document.getElementById('fileinput')
@@ -60,16 +75,5 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
         }
     }, false)
-
-    if(!isHost()) {
-        setInterval(() => {
-            chrome.runtime.sendMessage({text: "getdata"}, (response) => {
-                if(response.pause) {
-                    player.pause();
-                    player.currentTime = parseFloat(response.time);
-                }
-            })
-        }, 100)
-    }
 })
 
