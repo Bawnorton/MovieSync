@@ -1,0 +1,36 @@
+/*noinspection CssUnknownTarget*/
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
+
+#main {
+  padding: 25px;
+  background: #ff8888;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  margin: 0;
+  align-items: center;
+}
+
+input.InputField {
+  transition: width 0.4s ease-in-out;
+  background-color: #3CBC8D;
+  color: white;
+}
+
+#title{
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  color: #000;
+  font-weight: 600;
+  margin: 0 0 -5px 5px;
+}
+
+span{
+  font-family: 'Poppins', sans-serif;
+  font-size: 9px;
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 300;
+  margin: 0 0 10px 5px;
+}

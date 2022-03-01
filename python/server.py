@@ -1,109 +1,65 @@
 #!/usr/bin/python3.10
-import socket
-import socketserver
-from _thread import *
-from http.server import SimpleHTTPRequestHandler
-
-HOST = '162.248.100.184'
-PORT = 65432
+import asyncio
+import websockets
 
 first_user: bool = False
 timestamp: int = 0
 pause: bool = False
-clients: list = []
+clients = set()
 
 
-class CORSRequestHandler(SimpleHTTPRequestHandler):
-    def end_headers(self):
-        self.send_header("Access-Control-Allow-Origin", "*")
-        SimpleHTTPRequestHandler.end_headers(self)
-
-
-def create_http_server():
-    handler = CORSRequestHandler
-
-    with socketserver.TCPServer(("", 8000), handler) as httpd:
-        print("HTTP Server started at localhost:8000")
-        httpd.serve_forever()
-
-
-def create_server():
-    global first_user
-    server_socket = socket.socket()
-    try:
-        server_socket.bind((HOST, PORT))
-    except OSError:
-        print("No Avaliable Ports")
-
-    start_new_thread(create_http_server, ())
-
-    print("Server Started. Pending Connection to Client...")
-    server_socket.listen(5)
-
-    first_user = True
-
-    try:
-        while True:
-            client, address = server_socket.accept()
-            clients.append((client, address))
-            print("Connecting to", address)
-            start_new_thread(threaded_client, (client, address, first_user))
-            first_user = False
-    except KeyboardInterrupt:
-        end()
-        print("Interrupted")
-
-
-def end(host=None):
-    global first_user, timestamp, pause
-    first_user = True
-    pause = False
-    timestamp = 0
+async def end(websocket=None):
+    print(f"Host {websocket.remote_address} Issued Exit Command")
     for client in clients:
-        if client[0] == host:
+        if client == websocket:
             continue
-        print("Sending disconnect to", client[1])
-        client[0].sendall("q".encode("utf-8"))
-    with open("client.txt", "w") as client_file:
-        client_file.write(f"{timestamp},{'1' if pause else '0'}")
+        print(f"Sending Disconnect to {websocket.remote_address}")
+        client.send("q")
+        client.close()
 
 
-def threaded_client(connection, address, is_host):
-    global timestamp, pause, first_user
-    connection.sendall("Connected".encode('utf-8'))
-    if is_host:
-        connection.sendall("h".encode('utf-8'))
+async def handler(websocket: websockets.WebSocketServerProtocol):
+    global timestamp, pause
+    clients.add(websocket)
+    print(f"Connected to {websocket.remote_address}")
     while True:
-        data = connection.recv(1024).decode("utf-8")
-        if str(data) == "u":
-            if is_host:
+        try:
+            data = await websocket.recv()
+            if data == "u":
                 print("Updating Timestamp")
                 with open("client.txt", "w") as client_file:
                     client_file.write(f"{timestamp + 1},{'1' if pause else '0'}")
-                    connection.sendall("uw".encode("utf-8"))
+                    await websocket.send("uw")
                 with open("client.txt", "r+") as client_file:
                     client_data_string = client_file.read()
                     client_data = client_data_string.split(",")
                     timestamp = int(client_data[0])
                     pause = client_data[1] == "1"
-                    connection.sendall("s".encode("utf-8"))
-        elif str(data) == "p":
-            if is_host:
+                    await websocket.send("s")
+            elif str(data) == "p":
                 print("Updating Pause")
                 pause = not pause
-                connection.sendall("ps".encode("utf-8"))
-        elif str(data) == "d":
-            print("Disconnected from", address)
-            if is_host:
-                print(f"Host Disconnected")
-                end(connection)
-            break
-        elif str(data) == "q":
-            print(f"Quit Issued by Host {address}")
-            end(connection)
-            break
-    connection.close()
+                await websocket.send("ps")
+            elif str(data) == "d":
+                print(f"{websocket.remote_address} Disconnected")
+                websocket.close()
+                break
+            elif str(data) == "q":
+                await websocket.send("q")
+                break
+        except websockets.ConnectionClosedOK:
+            pass
 
 
-if __name__ == '__main__':
-    create_server()
+async def main():
+    async with websockets.serve(handler, "162.248.100.184", 2023):
+        print("Started WebSocket Server. Awaiting Client Connection")
+        await asyncio.Future()
+
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        end()
+        print("Interrupted")
