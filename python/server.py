@@ -41,19 +41,19 @@ async def handler(websocket: websockets.WebSocketServerProtocol):
                 logger.info(f"Updating Timestamp: {data}")
                 with open("client.txt", "w") as client_file:
                     client_file.write(f"{data},{'1' if pause else '0'}")
-                    await websocket.send("uw")
                 with open("client.txt", "r+") as client_file:
                     client_data_string = client_file.read()
                     client_data = client_data_string.split(",")
                     pause = client_data[1] == "1"
-                    await websocket.send("s")
             elif command == "p":
                 pause_data = data.split("|")
                 pause = pause_data[1] == '1'
                 logger.info(f"Updating Pause: {'Paused' if pause else 'Resumed'}")
                 with open("client.txt", "w") as client_file:
                     client_file.write(f"{pause_data[0]},{'1' if pause else '0'}")
-                    await websocket.send("ps")
+                    for client in clients.values():
+                        if client != websocket:
+                            await client.send('u')
             elif command == "d":
                 logger.info(f"{websocket.remote_address} Disconnected")
                 await websocket.close()

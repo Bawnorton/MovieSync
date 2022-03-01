@@ -1,6 +1,10 @@
 let logged_in_user
 
 document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('fileinput')
+    const fileInputButton = document.getElementById("fileinputbutton")
+    const player = document.getElementById("videoplayer")
+
     window.onbeforeunload = function() {
         chrome.runtime.sendMessage({text: "disconnect"}, () => {})
     };
@@ -15,22 +19,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!isHost()) {
             setInterval(() => {
                 chrome.runtime.sendMessage({text: "getdata"}, (response) => {
+                    console.log(response)
+                    player.currentTime = parseFloat(response.time);
                     if(response.pause) {
                         player.pause();
-                        player.currentTime = parseFloat(response.time);
                     } else if (player.paused) {
                         player.play();
-                        player.currentTime = parseFloat(response.time);
                     }
-
                 })
-            }, 100)
+            }, 1000)
+        } else {
+            setInterval(() => {
+                chrome.runtime.sendMessage({text: "getdata"}, (response) => {
+                    console.log(response)
+                })
+            }, 1000)
         }
     })
 
-    const fileInput = document.getElementById('fileinput')
-    const fileInputButton = document.getElementById("fileinputbutton")
-    const player = document.getElementById("videoplayer")
 
     fileInputButton.addEventListener('click', () => {
         fileInput.click();
@@ -49,12 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isHost()) {
                 player.setAttribute("controls", "controls")
             }
-        }
-    })
-
-    player.addEventListener("timeupdate", () => {
-        if (isHost()) {
-            chrome.runtime.sendMessage({text: "updatetime", time: player.currentTime}, () => {})
         }
     })
 

@@ -21,13 +21,15 @@ function startServer(ip, port) {
         connected = false;
     }
 
-    setInterval(() => {
-        fetch(`http://${ip}:8000/client.txt`).then((response) => {
-            response.text().then((text) => {
-                data = text.split(',')
+    socket.onmessage = (event) => {
+        if (event.data === "u") {
+            fetch(`http://${ip}:8000/client.txt`).then((response) => {
+                response.text().then((text) => {
+                    data = text.split(',')
+                });
             });
-        });
-    }, 100)
+        }
+    }
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -44,10 +46,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             break;
         case "getemail":
             sendResponse({email: email})
-            break;
-        case "updatetime":
-            if (connected) socket.send(`u,${request.time}`)
-            sendResponse({text: ""})
             break;
         case "pause":
             if (connected) socket.send(`p,${request.time}|1`)
