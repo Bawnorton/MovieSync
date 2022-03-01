@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const player = document.getElementById("videoplayer")
 
     window.onbeforeunload = function() {
-        chrome.runtime.sendMessage({text: "disconnect"}, () => {})
+        if (connected) socket.send("d")
     };
 
     function isHost() {
