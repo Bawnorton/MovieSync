@@ -9,10 +9,21 @@
 <body id="playermain">
   <div class="pad">
     <div class="center">
-      <form>
-        <input class="block" type="button" id="fileinputbutton" value="Video File" style=""/>
-        <input style="display:none;" type="file" id="fileinput" accept="video/*"/>
-      </form>
+      <table>
+        <tr>
+          <td><label for="ipinput">Server IP</label><input class="InputField" type="text" id="ipinput" placeholder="Server IP"/></td>
+          <td><label for="portinput">Server Port</label><input class="InputField" type="number" id="portinput" placeholder="Port"/></td>
+          <td><button class="StartButton" type="submit" id="connectbutton">Connect</button></td>
+        </tr>
+        <tr>
+          <th colspan=3>
+            <form>
+              <input class="block" type="button" id="fileinputbutton" value="Video File" style="display: none;"/>
+              <input style="display:none;" type="file" id="fileinput" accept="video/*"/>
+            </form>
+          </th>
+        </tr>
+      </table>
     </div>
   </div>
   <video autoplay id="videoplayer" style="display: none;"></video>

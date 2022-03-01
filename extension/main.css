@@ -4,7 +4,7 @@
 #main {
   background: #090013;
   width: 250px;
-  height: 140px;
+  height: 100px;
   padding: 10px;
 }
 
@@ -33,6 +33,15 @@
   display: block;
 }
 
+#connectbutton {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+#connectbutton:hover {
+  color: rgba(255, 147, 147, 1);
+}
+
 body {
   margin:0 !important;
   border-radius: 10px;
@@ -52,6 +61,10 @@ form {
   overflow: hidden;
 }
 
+table {
+  padding: 10px;
+}
+
 button.StartButton {
   background-color: rgba(241, 103, 91, 0.80);
   width: 100%;
@@ -62,6 +75,7 @@ button.StartButton {
   outline: none;
   padding: 5px;
   margin-bottom: 5px;
+  margin-top: 10px;
   text-decoration: none;
   cursor: pointer;
 }
@@ -71,17 +85,6 @@ video {
   height: auto   !important;
 }
 
-td {
-  width: 150px;
-}
-td+td {
-  width: auto;
-}
-
-button:focus {
-  background-color: rgba(255, 147, 147, 1);
-}
-
 .block {
   display: block;
   border: none;
@@ -89,18 +92,14 @@ button:focus {
   background-color: rgba(255, 147, 147, 0.05);
   border-bottom: 3px solid rgba(253, 158, 138, 0.56);
   outline: none;
-  font-size: 40px;
-  padding: 25px;
-  margin: 1%;
-  width: 98%;
+  font-size: 20px;
+  padding: 15px;
+  width: 100%;
   cursor: pointer;
   text-align: left;
 }
 
-.block:hover {
-  background-color: rgba(255, 147, 147, 0.25);
-}
-
+.block:hover,
 .block:focus {
   background-color: rgba(255, 147, 147, 0.25);
 }
@@ -118,7 +117,8 @@ input.InputField {
   border-bottom: 1px solid rgba(253, 158, 138, 0.56);
 }
 
-input[type=text]:focus {
+input:focus,
+input:hover {
   background-color: rgba(255, 147, 147, 0.35);
 }
 

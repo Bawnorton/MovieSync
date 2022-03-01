@@ -5,8 +5,11 @@ let data = {time: 0, pause: false};
 
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('fileinput')
-    const fileInputButton = document.getElementById("fileinputbutton")
+    const fileInputButton = document.getElementById('fileinputbutton')
     const player = document.getElementById("videoplayer")
+    const ipField = document.getElementById('ipinput')
+    const portField = document.getElementById('portinput')
+    const connectButton = document.getElementById('connectbutton')
 
     window.onbeforeunload = function() {
         if (connected) socket.send("d")
@@ -54,6 +57,11 @@ document.addEventListener('DOMContentLoaded', () => {
         logged_in_user = response.email;
     })
 
+    connectButton.addEventListener('click', () => {
+        startServer(ipField.value, portField.value)
+        console.log(`Connected to: ${ipField.value}:${portField.value}`)
+        fileInputButton.style.display = "block"
+    })
 
     fileInputButton.addEventListener('click', () => {
         fileInput.click();
@@ -71,9 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
             player.style.display = "block"
             if (isHost()) {
                 player.setAttribute("controls", "controls")
-                chrome.runtime.sendMessage({text: "requestserverdata"}, (response) => {
-                    startServer(response.ip, response.port)
-                })
             }
         }
     })
