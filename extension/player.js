@@ -1,4 +1,6 @@
-let logged_in_user
+let logged_in_user;
+let socket;
+let data;
 
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('fileinput')
@@ -13,28 +15,42 @@ document.addEventListener('DOMContentLoaded', () => {
         return logged_in_user.includes("bnjmnnrtn")
     }
 
+    function startServer(ip, port) {
+        socket = new WebSocket(`ws://${ip}:${port}`)
+
+        socket.binaryType = "arraybuffer"
+
+        socket.onopen = function() {
+            connected = true;
+            socket.send("Connected")
+        };
+
+        socket.onclose = function() {
+            connected = false;
+        }
+
+        socket.onmessage = (event) => {
+            if (event.data === "u") {
+                fetch(`http://${ip}:8000/client.txt`).then((response) => {
+                    response.text().then((text) => {
+                        let clientData = text.split(',')
+                        data.pause = clientData[1] === '1'
+                        data.time = parseFloat(clientData[0])
+                        console.log(data)
+                        player.currentTime = parseFloat(data.time);
+                        if(data.pause) {
+                            player.pause();
+                        } else if (player.paused) {
+                            player.play();
+                        }
+                    });
+                });
+            }
+        }
+    }
+
     chrome.runtime.sendMessage({text: "getemail"}, (response) => {
         logged_in_user = response.email;
-
-        if(!isHost()) {
-            setInterval(() => {
-                chrome.runtime.sendMessage({text: "getdata"}, (response) => {
-                    console.log(response)
-                    player.currentTime = parseFloat(response.time);
-                    if(response.pause) {
-                        player.pause();
-                    } else if (player.paused) {
-                        player.play();
-                    }
-                })
-            }, 1000)
-        } else {
-            setInterval(() => {
-                chrome.runtime.sendMessage({text: "getdata"}, (response) => {
-                    console.log(response)
-                })
-            }, 1000)
-        }
     })
 
 
@@ -54,6 +70,9 @@ document.addEventListener('DOMContentLoaded', () => {
             player.style.display = "block"
             if (isHost()) {
                 player.setAttribute("controls", "controls")
+                chrome.runtime.sendMessage({text: "requestserverdata"}, (response) => {
+                    startServer(response.ip, response.port)
+                })
             }
         }
     })
