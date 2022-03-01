@@ -9,7 +9,7 @@
     "action": {
       "default_popup": "popup.html"
     },
-    "permissions": ["storage", "activeTab", "scripting", "tabs"],
+    "permissions": ["storage", "activeTab", "scripting", "tabs", "identity", "identity.email"],
     "host_permissions": ["http://162.248.100.184:8000/client.txt"]
     
 

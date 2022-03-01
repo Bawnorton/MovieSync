@@ -4,7 +4,7 @@
 #main {
   background: #090013;
   width: 250px;
-  height: 130px;
+  height: 140px;
   padding: 10px;
 }
 
@@ -61,6 +61,7 @@ button.StartButton {
   border: none;
   outline: none;
   padding: 5px;
+  margin-bottom: 5px;
   text-decoration: none;
   cursor: pointer;
 }
@@ -68,6 +69,13 @@ button.StartButton {
 video {
   width: 100%    !important;
   height: auto   !important;
+}
+
+td {
+  width: 150px;
+}
+td+td {
+  width: auto;
 }
 
 button:focus {
@@ -99,7 +107,7 @@ button:focus {
 
 input.InputField {
   background-color: rgba(255, 147, 147, 0.05);
-  width: 100%;
+  width: 90%;
   padding: 5px;
   float: left;
   clear: both;
@@ -112,4 +120,10 @@ input.InputField {
 
 input[type=text]:focus {
   background-color: rgba(255, 147, 147, 0.35);
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

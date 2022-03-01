@@ -1,55 +1,64 @@
 #!/usr/bin/python3.10
 import asyncio
+import logging
+
 import websockets
 
-timestamp: int = 0
 pause: bool = False
-clients = set()
+clients = dict()
 
 
 async def end(websocket=None):
-    global timestamp, pause
-    print(f"Host {websocket.remote_address} Issued Exit Command")
-    timestamp = 0
+    global pause
+    logger.info(f"Host {'(Unknown)' if websocket is None else websocket.remote_address} Issued Exit Command")
     pause = False
     with open("client.txt", "w") as client_file:
         client_file.write(f"0,0")
-        await websocket.send("uw")
-    for client in clients:
+    for client in clients.values():
         if client == websocket:
             continue
-        print(f"Sending Disconnect to {websocket.remote_address}")
-        client.send("q")
-        client.close()
+        logger.info(f"Sending Disconnect to {client.remote_address}")
+        await client.send("q")
+        await client.close()
 
 
 async def handler(websocket: websockets.WebSocketServerProtocol):
-    global timestamp, pause
-    clients.add(websocket)
-    print(f"Connected to {websocket.remote_address}")
+    global pause
+    clients[websocket.remote_address] = websocket
+    logger.info(f"Connecting to {websocket.remote_address}")
     while True:
         try:
-            data = await websocket.recv()
-            if data == "u":
-                print("Updating Timestamp")
+            in_stream = await websocket.recv()
+            content = in_stream.split(",")
+            try:
+                command = content[0]
+                data = content[1]
+            except IndexError:
+                if in_stream != "":
+                    logger.info(in_stream)
+                continue
+            if command == "u":
+                logger.info(f"Updating Timestamp: {data}")
                 with open("client.txt", "w") as client_file:
-                    client_file.write(f"{timestamp + 1},{'1' if pause else '0'}")
+                    client_file.write(f"{data},{'1' if pause else '0'}")
                     await websocket.send("uw")
                 with open("client.txt", "r+") as client_file:
                     client_data_string = client_file.read()
                     client_data = client_data_string.split(",")
-                    timestamp = int(client_data[0])
                     pause = client_data[1] == "1"
                     await websocket.send("s")
-            elif str(data) == "p":
-                print("Updating Pause")
-                pause = not pause
-                await websocket.send("ps")
-            elif str(data) == "d":
-                print(f"{websocket.remote_address} Disconnected")
-                websocket.close()
+            elif command == "p":
+                pause_data = data.split("|")
+                pause = pause_data[1] == '1'
+                logger.info(f"Updating Pause: {'Paused' if pause else 'Resumed'}")
+                with open("client.txt", "w") as client_file:
+                    client_file.write(f"{pause_data[0]},{'1' if pause else '0'}")
+                    await websocket.send("ps")
+            elif command == "d":
+                logger.info(f"{websocket.remote_address} Disconnected")
+                await websocket.close()
                 break
-            elif str(data) == "q":
+            elif command == "q":
                 await websocket.send("q")
                 break
         except websockets.ConnectionClosedOK:
@@ -58,13 +67,17 @@ async def handler(websocket: websockets.WebSocketServerProtocol):
 
 async def main():
     async with websockets.serve(handler, "162.248.100.184", 2023):
-        print("Started WebSocket Server. Awaiting Client Connection")
+        logger.info("Started WebSocket Server. Awaiting Client Connection")
         await asyncio.Future()
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        format='▸ %(asctime)s.%(msecs)03d %(filename)s:%(lineno)03d %(levelname)s %(message)s',
+        level=logging.INFO,
+        datefmt='%H:%M:%S')
+    logger = logging.getLogger()
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        end()
-        print("Interrupted")
+        asyncio.run(end())

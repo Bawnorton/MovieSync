@@ -1,8 +1,14 @@
-chrome.action.onClicked.addListener(() => {
-    let socket;
-    let connected = false;
-    const host = "162.248.100.184:2023"
-    socket = new WebSocket(`ws://${host}`)
+let email;
+let socket;
+let data;
+let connected = false;
+
+chrome.identity.getProfileUserInfo((info) => {
+    email = info.email;
+})
+
+function startServer(ip, port) {
+    socket = new WebSocket(`ws://${ip}:${port}`)
 
     socket.binaryType = "arraybuffer"
 
@@ -15,35 +21,47 @@ chrome.action.onClicked.addListener(() => {
         connected = false;
     }
 
-    socket.onmessage = function (event) {
-        switch (event.data) {
-            case "uw":
-                console.log("Updated Timestamp")
-                break;
-            case "s":
-                console.log("Updated Client Info")
-                break;
-            case "p":
-                console.log("Pause Updated")
-                break;
-            case "q":
-                console.log("Server Issued Exit Command")
-                break;
-            default:
-                console.log(event.data)
-        }
-    };
-
     setInterval(() => {
-        if (connected){
-            socket.send("u")
-        }
-    }, 1000)
-
-    console.log('started');
-        fetch("http://162.248.100.184:8000/client.txt").then(function(response) {
-        response.text().then(function(text) {
-            console.log(text);
+        fetch(`http://${ip}:8000/client.txt`).then((response) => {
+            response.text().then((text) => {
+                data = text.split(',')
+            });
         });
-    });
-});
+    }, 100)
+}
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    switch (request.text) {
+        case "getdata":
+            sendResponse({time: data[0], pause: data[1] === '1'})
+            break;
+        case "startserver":
+            try {
+                startServer(request.ip, request.port)
+            } catch (err) {
+                sendResponse({error: "Cannot Find Server"})
+            }
+            break;
+        case "getemail":
+            sendResponse({email: email})
+            break;
+        case "updatetime":
+            if (connected) socket.send(`u,${request.time}`)
+            sendResponse({text: ""})
+            break;
+        case "pause":
+            if (connected) socket.send(`p,${request.time}|1`)
+            sendResponse({text: ""})
+            break;
+        case "play":
+            if (connected) socket.send(`p,${request.time}|0`)
+            sendResponse({text: ""})
+            break;
+        case "disconnect":
+            if (connected) socket.send("d,")
+            sendResponse({text: ""})
+            break;
+        default:
+            break;
+    }
+})
