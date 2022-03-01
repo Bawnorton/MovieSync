@@ -53,6 +53,7 @@ async def handler(websocket: websockets.WebSocketServerProtocol):
                     client_file.write(f"{pause_data[0]},{'1' if pause else '0'}")
                     for client in clients.values():
                         if client != websocket:
+                            logger.info(f"Sending to {client.remote_address}")
                             await client.send('u')
             elif command == "d":
                 logger.info(f"{websocket.remote_address} Disconnected")

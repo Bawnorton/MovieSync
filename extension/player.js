@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const connectButton = document.getElementById('connectbutton')
 
     window.onbeforeunload = function() {
-        if (connected) socket.send("d")
+        if (connected) socket.send("d,0")
     };
 
     function isHost() {
@@ -33,23 +33,21 @@ document.addEventListener('DOMContentLoaded', () => {
             connected = false
         }
 
-        socket.onmessage = (event) => {
-            if (event.data === "u") {
-                fetch(`http://${ip}:8000/client.txt`).then((response) => {
-                    response.text().then((text) => {
-                        let clientData = text.split(',')
-                        data.pause = clientData[1] === '1'
-                        data.time = parseFloat(clientData[0])
-                        console.log(data)
-                        player.currentTime = parseFloat(data.time);
-                        if(data.pause) {
-                            player.pause();
-                        } else if (player.paused) {
-                            player.play();
-                        }
-                    });
+        socket.onmessage = () => {
+            fetch(`http://${ip}:8000/client.txt`).then((response) => {
+                response.text().then((text) => {
+                    let clientData = text.split(',')
+                    data.pause = clientData[1] === '1'
+                    data.time = parseFloat(clientData[0])
+                    console.log(data)
+                    player.currentTime = parseFloat(data.time);
+                    if(data.pause) {
+                        player.pause();
+                    } else if (player.paused) {
+                        player.play();
+                    }
                 });
-            }
+            });
         }
     }
 
