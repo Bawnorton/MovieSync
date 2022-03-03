@@ -129,6 +129,8 @@ async def handler(websocket: websockets.WebSocketServerProtocol):
                 file_data = data.split("|")
                 file_name = file_data[1]
                 logger.info(f"Reciving File With {file_data[0]} Bytes")
+                if not os.path.exists('./video/'):
+                    os.makedirs('video')
                 files = glob.glob('./video/*')
                 for f in files:
                     logger.info(f"Removing {os.path.basename(f)}")
