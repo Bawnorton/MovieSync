@@ -5,39 +5,72 @@ import logging
 import websockets
 
 pause: bool = False
+name: str = ""
 clients = dict()
+host: websockets.WebSocketServerProtocol = None
 
 
-async def end(websocket=None):
-    global pause
-    logger.info(f"Host {'(Unknown)' if websocket is None else websocket.remote_address} Issued Exit Command")
+async def end():
+    global pause, clients
+    logger.info(f"Host {'(Unknown)' if host is None else host.remote_address} Issued Exit Command")
     pause = False
     with open("client.txt", "w") as client_file:
         client_file.write(f"0,0")
     for client in clients.values():
-        if client == websocket:
-            continue
         logger.info(f"Sending Disconnect to {client.remote_address}")
-        await client.send("q")
-        await client.close()
+        await client.send("d")
+    clients = dict()
 
 
 async def handler(websocket: websockets.WebSocketServerProtocol):
-    global pause
-    clients[websocket.remote_address] = websocket
-    logger.info(f"Connecting to {websocket.remote_address}")
+    global pause, host, name
+    logger.info(f"{websocket.remote_address} is Trying to Connect")
     while True:
         try:
-            in_stream = await websocket.recv()
+            try:
+                in_stream = await websocket.recv()
+            except websockets.ConnectionClosedError:
+                logger.warning(f"{websocket.remote_address} Suddenly Disconnected")
+                clients.pop(websocket.remote_address)
+                if host is not None and websocket.remote_address == host.remote_address:
+                    logger.warning(f"Host Suddenly Disconnected")
+                    await end()
+                    host = None
+                return
             content = in_stream.split(",")
             try:
                 command = content[0]
                 data = content[1]
             except IndexError:
-                if in_stream != "":
-                    logger.info(in_stream)
+                logger.warning(f"Command Missing Data: {in_stream}")
                 continue
-            if command == "u":
+            if command == "h":
+                if host is None:
+                    logger.info("Connected")
+                    logger.info(f"Setting Host: {websocket.remote_address}")
+                    clients[websocket.remote_address] = websocket
+                    host = websocket
+                    await websocket.send("sh")
+                else:
+                    logger.info(f"{websocket.remote_address} Tried to host. Host is {host.remote_address}")
+                    await websocket.send("fh")
+                    await websocket.send("q")
+            elif command == "c":
+                if host is None:
+                    logger.info(f"There is no Host and {websocket.remote_address} Tried to Connect")
+                    await websocket.send("fc")
+                    await websocket.send("q")
+                else:
+                    logger.info("Connected")
+                    clients[websocket.remote_address] = websocket
+                    await websocket.send("sc")
+            elif command == "ns":
+                name = data
+                logger.info(f"Server Name set to '{name}'")
+            elif command == "ng":
+                logger.info(f"Sending Name to {websocket.remote_address}")
+                await websocket.send(f"n,{name}")
+            elif command == "u":
                 logger.info(f"Updating Timestamp: {data}")
                 with open("client.txt", "w") as client_file:
                     client_file.write(f"{data},{'1' if pause else '0'}")
@@ -57,11 +90,21 @@ async def handler(websocket: websockets.WebSocketServerProtocol):
                             await client.send('u')
             elif command == "d":
                 logger.info(f"{websocket.remote_address} Disconnected")
+                clients.pop(websocket.remote_address)
                 await websocket.close()
+                if host is not None and websocket.remote_address == host.remote_address:
+                    logger.info(f"Host Disconnected")
+                    await end()
+                    host = None
                 break
             elif command == "q":
+                logger.info(f"Host Issued Exit Command")
+                clients.pop(websocket.remote_address)
+                await end()
                 await websocket.send("q")
                 break
+            else:
+                logger.warning(f"Unknown Command: {in_stream}")
         except websockets.ConnectionClosedOK:
             pass
 
@@ -78,7 +121,4 @@ if __name__ == "__main__":
         level=logging.INFO,
         datefmt='%H:%M:%S')
     logger = logging.getLogger()
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        asyncio.run(end())
+    asyncio.run(main())

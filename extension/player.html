@@ -7,25 +7,74 @@
   <script src="player.js"></script>
 </head>
 <body id="playermain">
-  <div class="pad">
-    <div class="center">
-      <table>
-        <tr>
-          <td><label for="ipinput">Server IP</label><input class="InputField" type="text" id="ipinput" placeholder="Server IP"/></td>
-          <td><label for="portinput">Server Port</label><input class="InputField" type="number" id="portinput" placeholder="Port"/></td>
-          <td><button class="StartButton" type="submit" id="connectbutton">Connect</button></td>
-        </tr>
-        <tr>
-          <th colspan=3>
-            <form>
-              <input class="block" type="button" id="fileinputbutton" value="Video File" style="display: none;"/>
-              <input style="display:none;" type="file" id="fileinput" accept="video/*"/>
-            </form>
-          </th>
-        </tr>
-      </table>
+    <table id="servertable">
+      <tr>
+        <td>
+          <label for="ipinput"></label>
+          <input autocomplete="off" class="InputField" type="text" id="ipinput" placeholder="Server IP"/>
+        </td>
+        <td>
+          <label for="portinput"></label>
+          <input class="InputField" type="number" id="portinput" placeholder="Port"/>
+        </td>
+      </tr>
+      <tr>
+        <th colspan=2>
+          <button class="StartButton" type="button" id="hostbutton">Host</button>
+          <button class="StartButton" type="button" id="connectbutton">Connect</button>
+          <p id="errorlabel">Error Message</p>
+          <hr>
+        </th>
+      </tr>
+    </table>
+    <table id="nametable" style="display: none">
+      <tr>
+        <td>
+          <label for="nameinput"></label>
+          <input autocomplete="off" class="InputField" type="text" id="nameinput" placeholder="Name" style="width: 96%"/>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button class="StartButton" type="button" id="startbutton">Start</button>
+          <hr>
+        </td>
+      </tr>
+    </table>
+  <div class="Container" style="float: left">
+    <div class="Box">
+      <p class="DisplayText">Server: </p>
+      <p class="DisplayTextInfo" id="iplabel">IP</p>
+    </div>
+    <div class="Box">
+      <p class="DisplayText">Name:</p>
+      <p class="DisplayTextInfo" id="namelabel">John Smith</p>
+    </div>
+    <div class="Box">
+      <p class="DisplayText">Connection Status: </p>
+      <p class="DisplayTextInfo" id="statuslabel">Disconnected</p>
     </div>
   </div>
-  <video autoplay id="videoplayer" style="display: none;"></video>
+  <div class="Container" style="float: left; margin-left: 0" id="downloadcontainer">
+    <div class="Box">
+      <p class="DisplayText" id="filelabel">No File to Download</p>
+    </div>
+    <div class="Box">
+      <button class="BigButton" type="button" id="downloadbutton">Download</button>
+    </div>
+  </div>
+  <div class="Container" style="float: left; clear: both; margin-top: 0;">
+    <div class="Box">
+      <input class="VideoInput" type="button" id="fileinputbutton" value="Video File"/>
+      <input style="display:none;" type="file" id="fileinput" accept="video/*"/>
+      <button class="BigButton" type="button" id="uploadbutton">Upload</button>
+    </div>
+    <div class="Box">
+      <div id="progress">
+        <div id="progressbar"></div>
+      </div>
+    </div>
+  </div>
+  <video id="videoplayer" style="display: none;"></video>
 </body>
 </html>

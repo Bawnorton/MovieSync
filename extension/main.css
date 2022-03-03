@@ -2,128 +2,210 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
 
 #main {
-  background: #090013;
-  width: 250px;
-  height: 100px;
-  padding: 10px;
+    background: #090013;
+    width: 250px;
+    height: 100px;
+    padding: 10px;
 }
 
 #playermain {
-  background: #090013;
+    background: #090013;
 }
 
 #title {
-  font-family: 'Poppins', sans-serif;
-  font-size: 14px;
-  text-align: center;
-  color: #f1675b;
-  font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    text-align: center;
+    color: #f1675b;
+    font-weight: 600;
 }
 
 #videdirtext {
-  width: 100%;
-  padding: 0 5px;
-  float: left;
-  clear: both;
-  color: rgba(255, 147, 147, 1);
-  border: 0;
+    width: 100%;
+    padding: 0 5px;
+    float: left;
+    clear: both;
+    color: rgba(255, 147, 147, 1);
+    border: 0;
 }
 
 #videoplayer {
-  display: block;
+    display: block;
 }
 
-#connectbutton {
-  padding-left: 20px;
-  padding-right: 20px;
+#errorlabel {
+    font-family: 'Poppins', sans-serif;
+    display: none;
+    color: #ff4040;
+    margin-bottom: 0;
 }
 
-#connectbutton:hover {
-  color: rgba(255, 147, 147, 1);
+#filelabel {
+    margin: 0 auto;
+}
+
+#progress {
+    display: none;
+    width: 100%;
+    margin-top: 3px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.51);
+}
+
+#progressbar {
+    width: 0;
+    height: 5px;
+    border-radius: 10px;
+    background-color: rgba(0, 255, 0, 0.85);
+}
+
+button {
+    background-color: rgba(241, 103, 91, 0.80);
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 10px;
+    float: left;
+    clear: both;
+    color: white;
+    border: none;
+    outline: none;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+button:hover {
+    color: rgba(255, 147, 147, 1);
+}
+
+button:disabled:hover,
+button:disabled,
+button[disabled]{
+    background-color: #cccccc;
+    color: #666666;
+    cursor: default;
+}
+
+input {
+    float: left;
+    clear: both;
+    color: white;
+    outline: none;
+    cursor: text;
+    text-align: left;
+    border: 0;
+    background-color: rgba(255, 147, 147, 0.05);
 }
 
 body {
-  margin:0 !important;
-  border-radius: 10px;
+    margin: 0 !important;
+    border-radius: 10px;
 }
 
 hr {
-  height: 1px;
-  background-color: #f8c2b1;
-  border: none;
-}
-
-p {
-  color: #dedede;
+    height: 1px;
+    clear: both;
+    background-color: #f8b9b1;
+    border: none;
 }
 
 form {
-  overflow: hidden;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
 }
 
 table {
-  padding: 10px;
+    width:300px;
+    height:100px;
+    position:fixed;
+    margin-left:-150px;
+    margin-top:-50px;
+    top:30%;
+    left:50%;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(71, 71, 71, 0.17);
 }
 
-button.StartButton {
-  background-color: rgba(241, 103, 91, 0.80);
-  width: 100%;
-  float: left;
-  clear: both;
-  color: white;
-  border: none;
-  outline: none;
-  padding: 5px;
-  margin-bottom: 5px;
-  margin-top: 10px;
-  text-decoration: none;
-  cursor: pointer;
+table tr td:nth-child(2) {
+    width: 30%;
 }
 
 video {
-  width: 100%    !important;
-  height: auto   !important;
+    width: 100% !important;
+    height: auto !important;
 }
 
-.block {
-  display: block;
-  border: none;
-  color: grey;
-  background-color: rgba(255, 147, 147, 0.05);
-  border-bottom: 3px solid rgba(253, 158, 138, 0.56);
-  outline: none;
-  font-size: 20px;
-  padding: 15px;
-  width: 100%;
-  cursor: pointer;
-  text-align: left;
+p {
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    cursor: default;
 }
 
-.block:hover,
-.block:focus {
-  background-color: rgba(255, 147, 147, 0.25);
+.Box {
+    display: flex;
 }
 
-input.InputField {
-  background-color: rgba(255, 147, 147, 0.05);
-  width: 90%;
-  padding: 5px;
-  float: left;
-  clear: both;
-  color: white;
-  outline: none;
-  border: 0;
-  margin-bottom: 10px;
-  border-bottom: 1px solid rgba(253, 158, 138, 0.56);
+.Container {
+    display: none;
+    margin: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    width: fit-content;
+    background: rgba(71, 71, 71, 0.17);
+}
+
+.DisplayTextInfo {
+    color: #ff952b;
+    margin: 0 0 0 5px;
+}
+
+.DisplayText {
+    color: rgba(88, 228, 255, 0.91);
+    margin: 0;
+}
+
+.StartButton {
+    width: 100%;
+    padding: 6px;
+    margin-bottom: 10px;
+}
+
+.BigButton {
+    font-size: 20px;
+    padding: 13px 60px;
+}
+
+.VideoInput {
+    font-size: 20px;
+    padding: 15px;
+    margin-right: 20px;
+    width: 500px;
+    color: grey;
+    cursor: pointer;
+    border-bottom: 3px solid rgba(253, 158, 138, 0.56);
+}
+
+.VideoInput:hover,
+.VideoInput:focus {
+    background-color: rgba(255, 147, 147, 0.25);
+}
+
+.InputField {
+    background-color: rgba(255, 147, 147, 0.05);
+    width: 90%;
+    padding: 5px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(253, 158, 138, 0.56);
 }
 
 input:focus,
 input:hover {
-  background-color: rgba(255, 147, 147, 0.35);
+    background-color: rgba(255, 147, 147, 0.35);
 }
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
