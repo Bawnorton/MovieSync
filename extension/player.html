@@ -41,7 +41,7 @@
         </td>
       </tr>
     </table>
-  <div class="Container" style="float: left">
+  <div class="Container" style="float: left; margin-right: 0">
     <div class="Box">
       <p class="DisplayText">Server: </p>
       <p class="DisplayTextInfo" id="iplabel">IP</p>
@@ -55,12 +55,26 @@
       <p class="DisplayTextInfo" id="statuslabel">Disconnected</p>
     </div>
   </div>
-  <div class="Container" style="float: left; margin-left: 0" id="downloadcontainer">
+  <div class="Container" style="float: left" id="downloadcontainer">
     <div class="Box">
       <p class="DisplayText" id="filelabel">No File to Download</p>
     </div>
     <div class="Box">
       <button class="BigButton" type="button" id="downloadbutton">Download</button>
+    </div>
+  </div>
+  <div class="Container" style="float: left">
+    <div class="Box" id="clientcountbox" style="display: none">
+      <p class="DisplayText">Connected Clients: </p>
+      <p class="DisplayTextInfo" id="clientcountlabel">0</p>
+    </div>
+    <div class="Box">
+      <p class="DisplayText">Paused: </p>
+      <p class="DisplayTextInfo" id="pausedlabel">True</p>
+    </div>
+    <div class="Box">
+      <p class="DisplayText">Last Timestamp: </p>
+      <p class="DisplayTextInfo" id="timestamplabel">0:0:0</p>
     </div>
   </div>
   <div class="Container" style="float: left; clear: both; margin-top: 0;">

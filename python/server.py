@@ -106,6 +106,7 @@ async def handler(websocket: websockets.WebSocketServerProtocol):
                     logger.info("Connected")
                     clients[websocket.remote_address] = websocket
                     await websocket.send("sc")
+                    await host.send(f"nc,{websocket.remote_address}")
                     files = glob.glob('./video/*')
                     if len(files) == 1:
                         file_name = os.path.basename(files[0])
@@ -139,20 +140,21 @@ async def handler(websocket: websockets.WebSocketServerProtocol):
                 pause_data = data.split("|")
                 pause = pause_data[1] == '1'
                 logger.info(f"Updating Pause: {'Paused' if pause else 'Resumed'}")
-                with open("client.txt", "w") as client_file:
-                    client_file.write(f"{pause_data[0]},{'1' if pause else '0'}")
-                    for client in clients.values():
-                        if client != websocket:
-                            logger.info(f"Sending to {client.remote_address}")
-                            await client.send('u')
+                for client in clients.values():
+                    if client == websocket:
+                        continue
+                    await client.send(f"u,{pause_data[0]}|{pause_data[1]}")
             elif command == "d":
                 logger.info(f"{websocket.remote_address} Disconnected")
                 clients.pop(websocket.remote_address)
                 await websocket.close()
-                if host is not None and websocket.remote_address == host.remote_address:
-                    logger.info(f"Host Disconnected")
-                    await end()
-                    host = None
+                if host is not None:
+                    if websocket.remote_address == host.remote_address:
+                        logger.info(f"Host Disconnected")
+                        await end()
+                        host = None
+                    else:
+                        await host.send(f"dc,{websocket.remote_address}")
                 break
             elif command == "q":
                 logger.info(f"Host Issued Exit Command")

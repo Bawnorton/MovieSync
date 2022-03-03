@@ -13,24 +13,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const portField = document.getElementById('portinput')
     const nameField = document.getElementById('nameinput')
     const fileInput = document.getElementById('fileinput')
+
     const fileInputButton = document.getElementById('fileinputbutton')
     const connectButton = document.getElementById('connectbutton')
     const hostButton = document.getElementById('hostbutton')
     const uploadButton = document.getElementById('uploadbutton')
     const downloadButton = document.getElementById('downloadbutton')
     const startButton = document.getElementById('startbutton')
+
     const errorLabel = document.getElementById('errorlabel')
     const ipLabel = document.getElementById('iplabel')
     const statusLabel = document.getElementById('statuslabel')
     const nameLabel = document.getElementById('namelabel')
     const fileLabel = document.getElementById('filelabel')
+    const clientCountLabel = document.getElementById('clientcountlabel')
+    const pausedLabel = document.getElementById('pausedlabel')
+    const timestampLabel = document.getElementById('timestamplabel')
+
     const serverTable = document.getElementById('servertable')
     const nameTable = document.getElementById('nametable')
-    const player = document.getElementById('videoplayer')
+
     const containers = document.getElementsByClassName('Container')
+    const clientCountBox = document.getElementById('clientcountbox')
+
     const progress = document.getElementById('progress')
     const progressBar = document.getElementById('progressbar')
 
+    const player = document.getElementById('videoplayer')
 
     window.onbeforeunload = function() {
         if (connected) socket.send("d,-")
@@ -95,17 +104,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         socket.onclose = () => {
+            reset("Connection Closed")
             connected = false
         }
 
         socket.onmessage = (event) => {
             if (event.data === "q") {
-                console.log("Server Issued Disconnect")
+                console.warn("Server Issued Disconnect")
                 socket.close()
             } else if (event.data === "d") {
                 console.warn("Host Disconnected")
                 socket.close()
-                reset("Host Disconnected")
             } else if (event.data === "sh") {
                 console.log("Successfully Connected as Host")
                 host = true
@@ -117,6 +126,12 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (event.data === "fh") {
                 console.error("Failed to Connect as Host")
                 reset("Server Already has a Host")
+            } else if (event.data.startsWith("nc")) {
+                console.log(`New Client Connected: ${event.data.substring(3)}`)
+                clientCountLabel.innerText = parseInt(clientCountLabel.innerText) + 1
+            } else if (event.data.startsWith("dc")) {
+                console.log(`Client Disconnected: ${event.data.substring(3)}`)
+                clientCountLabel.innerText = parseInt(clientCountLabel.innerText) - 1
             } else if (event.data.startsWith("cd")) {
                 console.log("Download File Uploaded by Host")
                 fileLabel.innerText = event.data.substring(3)
@@ -138,21 +153,19 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (event.data.startsWith('n')) {
                 nameLabel.innerText = event.data.substring(2)
                 console.log("Server Name Set")
-            } else if (event.data === "u") {
-                fetch(`http://${ip}:8000/client.txt`).then((response) => {
-                    response.text().then((text) => {
-                        let clientData = text.split(',')
-                        data.pause = clientData[1] === '1'
-                        data.time = parseFloat(clientData[0])
-                        console.log(data)
-                        player.currentTime = parseFloat(data.time)
-                        if (data.pause) {
-                            player.pause()
-                        } else if (player.paused) {
-                            player.play()
-                        }
-                    })
-                })
+            } else if (event.data.startsWith("u")) {
+                let text = event.data.substring(2)
+                let clientData = text.split('|')
+                data.pause = clientData[1] === '1'
+                data.time = parseFloat(clientData[0])
+                player.currentTime = parseFloat(data.time)
+                timestampLabel.innerText =  new Date(data.time * 1000).toISOString().substr(11, 8)
+                pausedLabel.innerText = data.pause ? "True" : "False"
+                if (data.pause) {
+                    player.pause()
+                } else if (player.paused) {
+                    player.play()
+                }
             } else {
                 console.log(`Unknown Command: ${event.data}`)
             }
@@ -176,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
     startButton.addEventListener('click', () => {
         nameTable.style.display = "none"
         nameLabel.textContent = nameField.value
+        clientCountBox.style.display = "flex"
         for (let container of containers) {
             container.style.display = "block"
         }
