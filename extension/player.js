@@ -1,6 +1,9 @@
 let logged_in_user
 let socket
 let file
+let uploaderInterval
+let numChunks
+let startUpload = false
 let connected = false
 let host = false
 let data = {time: 0, pause: false}
@@ -20,11 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const ipLabel = document.getElementById('iplabel')
     const statusLabel = document.getElementById('statuslabel')
     const nameLabel = document.getElementById('namelabel')
+    const fileLabel = document.getElementById('filelabel')
     const serverTable = document.getElementById('servertable')
     const nameTable = document.getElementById('nametable')
     const player = document.getElementById('videoplayer')
     const containers = document.getElementsByClassName('Container')
-    const downloadContainer = document.getElementById('downloadcontainer')
     const progress = document.getElementById('progress')
     const progressBar = document.getElementById('progressbar')
 
@@ -41,11 +44,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     serverTable.style.display = "none"
                     ipLabel.innerText = `${ipField.value}:${portField.value}`
                     statusLabel.innerText = host ? "Host" : "Client"
+                    downloadButton.disabled = true;
                     if(host) {
                         nameTable.style.display = "table"
                     } else {
                         uploadButton.style.display = "none"
-                        downloadButton.disabled = true;
                         fileInputButton.style.marginRight = 0
                         for (let container of containers) {
                             container.style.display = "block"
@@ -66,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function reset(message) {
         serverTable.style.display = "table"
         nameTable.style.display = "none"
+        player.style.display = "none"
         for (let container of containers) {
             container.style.display = "none"
         }
@@ -113,6 +117,24 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (event.data === "fh") {
                 console.error("Failed to Connect as Host")
                 reset("Server Already has a Host")
+            } else if (event.data.startsWith("cd")) {
+                console.log("Download File Uploaded by Host")
+                fileLabel.innerText = event.data.substring(3)
+                downloadButton.disabled = false
+            } else if (event.data.startsWith("dd")) {
+                console.log("Download File Being Uploaded by Host")
+                fileLabel.innerText = event.data.substring(3)
+                downloadButton.disabled = true
+            } else if (event.data.startsWith("us")) {
+                let sliceProgress = parseInt(event.data.substring(3))
+                console.log(`Slice ${sliceProgress} written`)
+                let percentDone = Math.min(100, sliceProgress / numChunks * 100)
+                progressBar.style.width = `${percentDone}%`
+                if (percentDone >= 100) {
+                    progress.style.display = "none"
+                    progressBar.style.width = `0%`
+                    uploadButton.disabled = false;
+                }
             } else if (event.data.startsWith('n')) {
                 nameLabel.innerText = event.data.substring(2)
                 console.log("Server Name Set")
@@ -157,7 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let container of containers) {
             container.style.display = "block"
         }
-        downloadContainer.style.display = "none"
         socket.send(`ns,${nameField.value}`)
     })
 
@@ -174,59 +195,62 @@ document.addEventListener('DOMContentLoaded', () => {
             player.src = URL.createObjectURL(file)
             player.style.objectFit = "cover"
             player.style.display = "block"
+            uploaderInterval = setInterval(upload, 1000)
             if (host) {
                 player.setAttribute("controls", "controls")
             }
         }
     })
 
-    let startUpload = false
-    let uploader = setInterval(() => {
-        if(startUpload) {
-            let sliceSize = 1000 * 1024
-            const numChunks = Math.ceil(file.size / sliceSize)
-            let count = 0
-            function uploadNextSlice(start) {
-                count++
-                let nextSlice = Math.min(start + sliceSize, file.size)
-                console.log(`Uploading Slice ${count}/${numChunks}`)
-                let blob = file.slice(start, nextSlice)
-                let reader = new FileReader()
-                reader.onloadend = (event) => {
-                    if(event.target.readyState !== FileReader.DONE) {
-                        return
-                    }
-                    let binaryFileData = event.target.result
-                    fetch(`http://${ipField.value}:8000/video`, {
-                        method: "POST",
-                        headers: {"Content-Range": `${blob.size}`},
-                        data: binaryFileData
-                    }).then((response) => {
-                        let percentDone = (start + sliceSize) / file.size * 100
-                        console.log(percentDone)
-                        progressBar.style.width = `${percentDone}%`
-                        if(nextSlice < file.size) {
-                            uploadNextSlice(nextSlice)
-                        }
-                        return response.text()
-                    }).then((data) => {
-                        console.log(data)
-                    })
 
+    function upload() {
+        if(!startUpload) return
+        let sliceSize = 1000 * 1024
+        numChunks = Math.ceil(file.size / sliceSize)
+        let count = 0
+        function uploadNextSlice(start) {
+            count++
+            let nextSlice = Math.min(start + sliceSize, file.size)
+            console.log(`Uploading Slice ${count}/${numChunks}`)
+            let blob = file.slice(start, nextSlice)
+            let reader = new FileReader()
+            reader.onloadend = (event) => {
+                if(event.target.readyState !== FileReader.DONE) {
+                    return
                 }
-                reader.readAsArrayBuffer(blob)
+                let binaryFileData = event.target.result
+
+                socket.send(binaryFileData)
+
+                if(nextSlice < file.size) {
+                    uploadNextSlice(nextSlice)
+                } else {
+                    socket.send("ud")
+                }
             }
-            uploadNextSlice(0)
-            clearInterval(uploader)
+            reader.readAsArrayBuffer(blob)
         }
-    }, 1000)
+        uploadNextSlice(0)
+        clearInterval(uploaderInterval)
+    }
 
     uploadButton.addEventListener('click', () => {
         file = fileInput.files[0]
         if(file && file.name !== "") {
+            uploadButton.disabled = true;
             progress.style.display = "block"
+            socket.send(`up,${file.size}|${file.name}`)
             startUpload = true
         }
+    })
+
+    downloadButton.addEventListener('click', () => {
+        const anchor = document.createElement('a')
+        anchor.href = `http://${ipField.value}:8000/video/${fileLabel.innerText}`
+        anchor.download = fileLabel.innerText
+        document.body.appendChild(anchor)
+        anchor.click()
+        document.body.removeChild(anchor)
     })
 
     player.addEventListener("pause", () => {

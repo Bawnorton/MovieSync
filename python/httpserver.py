@@ -3,9 +3,6 @@ import socketserver
 import time
 from http.server import SimpleHTTPRequestHandler
 from io import BytesIO
-import logging
-
-logging.basicConfig(level=logging.INFO)
 
 
 class CORSRequestHandler(SimpleHTTPRequestHandler):
@@ -47,5 +44,4 @@ def create_http_server():
 
 
 if __name__ == '__main__':
-    logger = logging.getLogger()
     create_http_server()
