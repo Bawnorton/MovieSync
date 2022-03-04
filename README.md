@@ -21,11 +21,11 @@ They also determine which video file will be avaliable to clients.
 - Upload the video file by pressing `Upload` 
 
 ## Python Server Installation:
-Depends on: python3.10, websockets, glob, logging, asyncio, binascii
+Depends on: python3.10, websockets
 
 - Add server.py to VPS
 - Move to server.py dir
-- Modify shebang in `./server.py` to point to python3.10
+- Modify shebang in `./server.py` to point to python 3.10
   - Currently set to `#!/usr/bin/python3.10` can be changed with `nano ./server.py`
 - Run `chmod +x ./server.py`
 - Run `./server.py`
