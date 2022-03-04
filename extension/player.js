@@ -1,4 +1,3 @@
-let logged_in_user
 let socket
 let file
 let uploaderInterval
@@ -171,10 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-
-    chrome.runtime.sendMessage({text: "getemail"}, (response) => {
-        logged_in_user = response.email
-    })
 
     connectButton.addEventListener('click', () => {
         console.log(`Connecting to: ${ipField.value}:${portField.value}`)

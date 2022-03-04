@@ -1,17 +1,16 @@
 {
     "name": "Video Sync Controller",
-    "description": "Pauses and plays videos!",
+    "description": "pauses and plays local videos accross a virtual private server",
     "version": "1.0",
     "manifest_version": 3,
-    "background": {
-      "service_worker": "background.js"
-    },
     "action": {
       "default_popup": "popup.html"
     },
-    "permissions": ["storage", "activeTab", "scripting", "tabs", "identity", "identity.email"],
-    "host_permissions": ["http://162.248.100.184:8000/client.txt"]
-    
-
+    "icons" : {
+        "16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png"
+    },
+    "permissions": ["storage", "activeTab", "scripting", "tabs", "identity", "identity.email"]
 }
   
