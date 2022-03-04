@@ -221,9 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
             player.style.objectFit = "cover"
             player.style.display = "block"
             uploaderInterval = setInterval(upload, 1000)
-            if (host) {
-                player.setAttribute("controls", "controls")
-            } else {
+            if (!host) {
                 socket.send("rt,-")
             }
         }

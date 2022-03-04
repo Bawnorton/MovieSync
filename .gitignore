@@ -1,5 +1,8 @@
 # project
 python/run_remote_server.sh
+extension/extension.crx
+extension.pem
+extension.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

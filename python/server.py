@@ -2,13 +2,17 @@
 
 import asyncio
 import binascii
-import logging
 import glob
+import logging
 import os
+import socket
+import socketserver
+import time
+from _thread import start_new_thread
+from http.server import SimpleHTTPRequestHandler
 from typing import Optional
 
 import websockets
-import socket
 from websockets.typing import Data
 
 pause: bool = False
@@ -16,6 +20,25 @@ name: str = ""
 clients = dict()
 timestamp: float = 0
 host: websockets.WebSocketServerProtocol = None
+
+
+class CORSRequestHandler(SimpleHTTPRequestHandler):
+    def end_headers(self):
+        self.send_header("Access-Control-Allow-Origin", "*")
+        SimpleHTTPRequestHandler.end_headers(self)
+
+
+def create_http_server():
+    http_handler = CORSRequestHandler
+
+    while True:
+        try:
+            with socketserver.TCPServer(("", 8000), http_handler) as httpd:
+                logger.info("HTTP Server started at localhost:8000")
+                httpd.serve_forever()
+        except OSError:
+            logger.warning("Could not start HTTP Server, trying again")
+            time.sleep(1)
 
 
 async def end():
@@ -202,4 +225,5 @@ if __name__ == "__main__":
         level=logging.INFO,
         datefmt='%H:%M:%S')
     logger = logging.getLogger()
+    start_new_thread(create_http_server, ())
     asyncio.run(main())

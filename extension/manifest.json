@@ -1,7 +1,7 @@
 {
     "name": "Video Sync Controller",
     "description": "pauses and plays local videos accross a virtual private server",
-    "version": "1.0",
+    "version": "0.0.1",
     "manifest_version": 3,
     "action": {
       "default_popup": "popup.html"
