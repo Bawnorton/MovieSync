@@ -5,6 +5,7 @@ import binascii
 import glob
 import logging
 import os
+import shutil
 import socket
 import socketserver
 import time
@@ -27,6 +28,18 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         SimpleHTTPRequestHandler.end_headers(self)
 
+    def do_GET(self):
+        files = glob.glob('./video/*')
+        if len(files) == 1:
+            with open(files[0], 'rb') as f:
+                self.send_response(200)
+                self.send_header("Content-Type", 'application/octet-stream')
+                self.send_header("Content-Disposition", f'attachment; filename="{os.path.basename(files[0])}"')
+                fs = os.fstat(f.fileno())
+                self.send_header("Content-Length", str(fs.st_size))
+                self.end_headers()
+                shutil.copyfileobj(f, self.wfile)
+
 
 def create_http_server():
     http_handler = CORSRequestHandler
@@ -34,11 +47,11 @@ def create_http_server():
     while True:
         try:
             with socketserver.TCPServer(("", 8000), http_handler) as httpd:
-                logger.info("HTTP Server started at localhost:8000")
+                logger.info("HTTP Server started on localhost:8000")
                 httpd.serve_forever()
         except OSError:
             logger.warning("Could not start HTTP Server, trying again")
-            time.sleep(1)
+            time.sleep(5)
 
 
 async def end():

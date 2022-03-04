@@ -78,6 +78,9 @@ document.addEventListener('DOMContentLoaded', () => {
         serverTable.style.display = "table"
         nameTable.style.display = "none"
         player.style.display = "none"
+        clientCountLabel.innerText = "0"
+        timestampLabel.innerText = "00:00:00"
+        pausedLabel.innerText = "True"
         for (let container of containers) {
             container.style.display = "none"
         }
@@ -295,11 +298,5 @@ document.addEventListener('DOMContentLoaded', () => {
             socket.send(`p,${player.currentTime}`)
         }
     })
-
-    document.addEventListener('contextmenu', (event) => {
-        if(connected && !host) {
-            event.preventDefault()
-        }
-    }, false)
 })
 
