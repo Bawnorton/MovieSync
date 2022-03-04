@@ -1,4 +1,5 @@
 #!/usr/bin/python3.10
+
 import asyncio
 import binascii
 import logging
@@ -7,6 +8,7 @@ import os
 from typing import Optional
 
 import websockets
+import socket
 from websockets.typing import Data
 
 pause: bool = False
@@ -171,7 +173,11 @@ async def handler(websocket: websockets.WebSocketServerProtocol):
 
 
 async def main():
-    async with websockets.serve(handler, "162.248.100.184", 2023):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip = s.getsockname()[0]
+    s.close()
+    async with websockets.serve(handler, ip, 2023):
         logger.info("Started WebSocket Server. Awaiting Client Connection")
         await asyncio.Future()
 
