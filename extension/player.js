@@ -55,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     downloadButton.disabled = true;
                     if(host) {
                         nameTable.style.display = "table"
+                        fileInputButton.style.marginRight = "20px"
                     } else {
                         uploadButton.style.display = "none"
                         fileInputButton.style.marginRight = 0
@@ -203,6 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
         nameTable.style.display = "none"
         nameLabel.textContent = nameField.value
         clientCountBox.style.display = "flex"
+        uploadButton.style.display = "block"
         for (let container of containers) {
             container.style.display = "block"
         }
@@ -277,6 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const anchor = document.createElement('a')
         anchor.href = `http://${ipField.value}:8000/video/${fileLabel.innerText}`
         anchor.download = fileLabel.innerText
+        anchor.target = "_blank"
         document.body.appendChild(anchor)
         anchor.click()
         document.body.removeChild(anchor)
