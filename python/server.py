@@ -14,13 +14,16 @@ from websockets.typing import Data
 pause: bool = False
 name: str = ""
 clients = dict()
+timestamp: float = 0
 host: websockets.WebSocketServerProtocol = None
 
 
 async def end():
-    global pause, clients
+    global pause, clients, name, timestamp
     logger.info(f"Host {'(Unknown)' if host is None else host.remote_address} Issued Exit Command")
     pause = False
+    name = ""
+    timestamp = 0
     with open("client.txt", "w") as client_file:
         client_file.write(f"0,0")
     for client in clients.values():
@@ -30,7 +33,7 @@ async def end():
 
 
 async def handler(websocket: websockets.WebSocketServerProtocol):
-    global pause, host, name
+    global pause, host, name, timestamp
     logger.info(f"{websocket.remote_address} is Trying to Connect")
     websocket.max_size = 2**32
     count = 1
@@ -105,6 +108,11 @@ async def handler(websocket: websockets.WebSocketServerProtocol):
                     await websocket.send("fc")
                     await websocket.send("q")
                 else:
+                    if name == "":
+                        logger.info(f"Host is still connecting and {websocket.remote_address} Tried to Connect")
+                        await websocket.send("fc")
+                        await websocket.send("q")
+                        return
                     logger.info("Connected")
                     clients[websocket.remote_address] = websocket
                     await websocket.send("sc")
@@ -140,14 +148,20 @@ async def handler(websocket: websockets.WebSocketServerProtocol):
                 with open(f"./video/{file_name}", 'w'):
                     pass
                 expect_upload = True
-            elif command == "p":
-                pause_data = data.split("|")
-                pause = pause_data[1] == '1'
-                logger.info(f"Updating Pause: {'Paused' if pause else 'Resumed'}")
+            elif command == "rt":
+                await websocket.send(f"st,{timestamp}")
+            elif command == "t":
+                timestamp = float(data)
                 for client in clients.values():
                     if client == websocket:
                         continue
-                    await client.send(f"u,{pause_data[0]}|{pause_data[1]}")
+                    await client.send(f"t,{data}")
+            elif command == "p":
+                timestamp = float(data)
+                for client in clients.values():
+                    if client == websocket:
+                        continue
+                    await client.send(f"p,{data}")
             elif command == "d":
                 logger.info(f"{websocket.remote_address} Disconnected")
                 clients.pop(websocket.remote_address)
@@ -159,13 +173,13 @@ async def handler(websocket: websockets.WebSocketServerProtocol):
                         host = None
                     else:
                         await host.send(f"dc,{websocket.remote_address}")
-                break
+                return
             elif command == "q":
                 logger.info(f"Host Issued Exit Command")
                 clients.pop(websocket.remote_address)
                 await end()
                 await websocket.send("q")
-                break
+                return
             else:
                 logger.warning(f"Unknown Command: {in_stream}")
         except websockets.ConnectionClosedOK:

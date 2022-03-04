@@ -81,8 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let container of containers) {
             container.style.display = "none"
         }
-        errorLabel.style.display = "block"
         if(message) {
+            errorLabel.style.display = "block"
             errorLabel.textContent = message
         }
     }
@@ -103,7 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         socket.onclose = () => {
-            reset("Connection Closed")
+            console.log("Connection Closed")
+            reset()
             connected = false
         }
 
@@ -113,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 socket.close()
             } else if (event.data === "d") {
                 console.warn("Host Disconnected")
+                reset("Host Disconnectted")
                 socket.close()
             } else if (event.data === "sh") {
                 console.log("Successfully Connected as Host")
@@ -152,18 +154,30 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (event.data.startsWith('n')) {
                 nameLabel.innerText = event.data.substring(2)
                 console.log("Server Name Set")
-            } else if (event.data.startsWith("u")) {
-                let text = event.data.substring(2)
-                let clientData = text.split('|')
-                data.pause = clientData[1] === '1'
-                data.time = parseFloat(clientData[0])
+            } else if (event.data.startsWith("st")) {
+                let text = event.data.substring(3)
+                data.time = parseFloat(text)
+                timestampLabel.innerText = new Date(data.time * 1000).toISOString().substr(11, 8)
                 player.currentTime = parseFloat(data.time)
-                timestampLabel.innerText =  new Date(data.time * 1000).toISOString().substr(11, 8)
-                pausedLabel.innerText = data.pause ? "True" : "False"
-                if (data.pause) {
-                    player.pause()
-                } else if (player.paused) {
+            } else if (event.data.startsWith("t")) {
+                let text = event.data.substring(2)
+                data.pause = false
+                data.time = parseFloat(text)
+                timestampLabel.innerText = new Date(data.time * 1000).toISOString().substr(11, 8)
+                pausedLabel.innerText = "False"
+                if (player.paused && player.style.display !== "none") {
+                    player.currentTime = parseFloat(data.time)
                     player.play()
+                }
+            } else if (event.data.startsWith("p")) {
+                let text = event.data.substring(2)
+                data.pause = true
+                data.time = parseFloat(text)
+                timestampLabel.innerText = new Date(data.time * 1000).toISOString().substr(11, 8)
+                pausedLabel.innerText = "True"
+                if (!player.paused && player.style.display !== "none") {
+                    player.currentTime = parseFloat(data.time)
+                    player.pause()
                 }
             } else {
                 console.log(`Unknown Command: ${event.data}`)
@@ -182,6 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 
     startButton.addEventListener('click', () => {
+        if(nameField.value === "") return
         nameTable.style.display = "none"
         nameLabel.textContent = nameField.value
         clientCountBox.style.display = "flex"
@@ -197,6 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fileInput.addEventListener('change', () => {
         file = fileInput.files[0]
+        if(!file) return
         fileInputButton.value = file.name === "" ? "Video File" : file.name
         fileInputButton.style.color = file.name === "" ? 'grey' : 'white'
 
@@ -207,6 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
             uploaderInterval = setInterval(upload, 1000)
             if (host) {
                 player.setAttribute("controls", "controls")
+            } else {
+                socket.send("rt,-")
             }
         }
     })
@@ -234,6 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(nextSlice < file.size) {
                     uploadNextSlice(nextSlice)
                 } else {
+                    startUpload = false
                     socket.send("ud")
                 }
             }
@@ -262,17 +281,20 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.removeChild(anchor)
     })
 
-    player.addEventListener("pause", () => {
+    player.addEventListener('timeupdate', () => {
         if (host && connected) {
-            console.log("Sending Pause")
-            socket.send(`p,${player.currentTime}|1`)
+            pausedLabel.innerText = "True"
+            timestampLabel.innerText = new Date(player.currentTime * 1000).toISOString().substr(11, 8)
+            socket.send(`t,${player.currentTime}`)
         }
     })
 
-    player.addEventListener("play", () => {
+    player.addEventListener("pause", () => {
         if (host && connected) {
-            console.log("Sending Play")
-            socket.send(`p,${player.currentTime}|0`)
+            console.log("Sending Pause")
+            pausedLabel.innerText = "True"
+            timestampLabel.innerText = new Date(player.currentTime * 1000).toISOString().substr(11, 8)
+            socket.send(`p,${player.currentTime}`)
         }
     })
 
