@@ -1,7 +1,7 @@
 # MovieSync
-Python VPS/WebServer and JS Chrome extension to sync the playing of local movie files.
+Python VPS / WebServer and JS Chrome Extension / Web App to sync the playing of local movie files.
 
-## Chrome Extension Usage:
+## Chrome Extension / Web App Usage:
 - Click `Start` in the extension
 - Input VPS IP and Port 2023
 - If Hosting a room click `Host`
