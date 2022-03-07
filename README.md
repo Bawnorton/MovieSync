@@ -1,4 +1,4 @@
-# MovieSync
+# [MovieSync](https://bawnorton.com/player.html)
 Python VPS / WebServer and JS Chrome Extension / Web App to sync the playing of local movie files.
 
 ## Chrome Extension / Web App Usage:
