@@ -39,7 +39,10 @@
 #titlediv a {
     text-decoration: none;
     color: rgba(255, 147, 147, 1);
-    cursor: pointer;
+}
+
+#titlediv a:hover {
+    color: rgba(239, 148, 148, 0.8);
 }
 
 #videdirtext {
