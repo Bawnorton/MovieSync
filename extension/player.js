@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const containers = document.getElementsByClassName('Container')
     const clientCountBox = document.getElementById('clientcountbox')
+    const titleDiv = document.getElementById('titlediv')
 
     const progress = document.getElementById('progress')
     const progressBar = document.getElementById('progressbar')
@@ -57,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         nameTable.style.display = "table"
                         fileInputButton.style.marginRight = "20px"
                     } else {
+                        titleDiv.style.display = "none"
                         uploadButton.style.display = "none"
                         fileInputButton.style.marginRight = 0
                         for (let container of containers) {
@@ -78,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function reset(message) {
         serverTable.style.display = "table"
         nameTable.style.display = "none"
+        titleDiv.style.display = "block"
         player.style.display = "none"
         clientCountLabel.innerText = "0"
         timestampLabel.innerText = "00:00:00"
@@ -202,6 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
     startButton.addEventListener('click', () => {
         if(nameField.value === "") return
         nameTable.style.display = "none"
+        titleDiv.style.display = "none"
         nameLabel.textContent = nameField.value
         clientCountBox.style.display = "flex"
         uploadButton.style.display = "block"
