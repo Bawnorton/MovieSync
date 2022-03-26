@@ -5,6 +5,7 @@
   <link rel="stylesheet" href="main.css" type="text/css">
   <title>Video Player</title>
   <script src="player.js"></script>
+  <script defer src="https://kit.fontawesome.com/0e7b158b7d.js" crossorigin="anonymous"></script>
 </head>
 <body id="playermain">
 <div id="titlediv">
@@ -97,6 +98,12 @@
     </div>
   </div>
 </div>
-<video id="videoplayer" style="display: none;" controls></video>
+<div class="video-container">
+  <a id="back">
+    <i class="icon fa fa-arrow-left"></i>
+    <p>Back</p>
+  </a>
+  <video id="videoplayer" controls></video>
+</div>
 </body>
 </html>

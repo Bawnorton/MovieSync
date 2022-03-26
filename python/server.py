@@ -61,8 +61,6 @@ async def end():
     pause = False
     name = ""
     timestamp = 0
-    with open("client.txt", "w") as client_file:
-        client_file.write(f"0,0")
     for client in clients.values():
         logger.info(f"Sending Disconnect to {client.remote_address}")
         await client.send("d")

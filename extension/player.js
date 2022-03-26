@@ -40,6 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const progressBar = document.getElementById('progressbar')
 
     const player = document.getElementById('videoplayer')
+    const playerContainer = document.getElementsByClassName('video-container')[0]
+    const backPlayer = document.getElementById("back")
 
     window.onbeforeunload = function() {
         if (connected) socket.send("d,-")
@@ -227,8 +229,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (file && file.name !== "") {
             player.src = URL.createObjectURL(file)
-            player.style.objectFit = "cover"
             player.style.display = "block"
+            player.currentTime = data.time
+            playerContainer.style.display = "block"
             uploaderInterval = setInterval(upload, 1000)
             if (!host) {
                 socket.send("rt,-")
@@ -289,10 +292,20 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.removeChild(anchor)
     })
 
+    backPlayer.addEventListener("click", () => {
+        playerContainer.style.display = "none";
+        fileInput.value = "";
+        fileInputButton.value = "Video File";
+        fileInputButton.style.color = 'grey';
+        player.pause()
+    })
+
     player.addEventListener('timeupdate', () => {
         if (host && connected) {
+            data.time = player.currentTime;
+            data.pause = true;
             pausedLabel.innerText = "True"
-            timestampLabel.innerText = new Date(player.currentTime * 1000).toISOString().substr(11, 8)
+            timestampLabel.innerText = new Date(data.time * 1000).toISOString().substr(11, 8)
             socket.send(`t,${player.currentTime}`)
         }
     })
